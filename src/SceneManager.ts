@@ -9,6 +9,11 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { EventBus } from "./events/EventBus";
 import { renderCall } from "./events/constants";
 
+import { Earth } from "./sceneSubjects/Earth";
+
+interface sceneSubjectsProps {
+  earth: Earth;
+}
 
 /* Builds the scene components and exposes render and resize functions */
 export class SceneManager {
@@ -23,6 +28,7 @@ export class SceneManager {
   controls: OrbitControls;
   eventBus: EventBus;
   raycaster: Raycaster;
+  sceneSubjects: sceneSubjectsProps;
 
   constructor(canvas: HTMLCanvasElement, eventBus: EventBus) {
     this.canvas = canvas;
@@ -36,6 +42,7 @@ export class SceneManager {
     this.camera = this.buildCamera();
     this.controls = this.buildControls();
     this.raycaster = this.buildRaycaster();
+    this.sceneSubjects = this.createSceneSubjects();
   }
 
 
@@ -92,6 +99,15 @@ export class SceneManager {
     }
 
     return raycaster;
+  }
+
+  private createSceneSubjects() {
+    const earth = new Earth(
+      this.scene,
+      this.eventBus
+    );
+
+    return { earth };
   }
 
   private render() {
