@@ -15,6 +15,9 @@
   ],
   "author": "Patrick Becker",
   "license": "MIT",
+  "dependencies": {
+    "three": "^0.120.1"
+  },
   "devDependencies": {
     "css-loader": "^4.3.0",
     "file-loader": "^6.1.0",

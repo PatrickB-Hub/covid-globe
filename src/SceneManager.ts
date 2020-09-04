@@ -9,9 +9,11 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { EventBus } from "./events/EventBus";
 import { renderCall } from "./events/constants";
 
+import { Light } from "./sceneSubjects/Light";
 import { Earth } from "./sceneSubjects/Earth";
 
 interface sceneSubjectsProps {
+  light: Light;
   earth: Earth;
 }
 
@@ -102,12 +104,16 @@ export class SceneManager {
   }
 
   private createSceneSubjects() {
+    const light = new Light(this.camera);
     const earth = new Earth(
       this.scene,
       this.eventBus
     );
 
-    return { earth };
+    return {
+      light,
+      earth
+    };
   }
 
   private render() {
