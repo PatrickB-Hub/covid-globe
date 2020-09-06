@@ -1,0 +1,17 @@
+*,
+*::after,
+*::before {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 62.5%;
+  /* prevent doubletap from zooming */
+  touch-action: manipulation;
+}
+
+body {
+  background: url("../images/bg_blue.jpg") repeat fixed;
+}
