@@ -11,10 +11,12 @@ import { renderCall } from "./events/constants";
 
 import { Light } from "./sceneSubjects/Light";
 import { Earth } from "./sceneSubjects/Earth";
+import { EarthAtmosphere } from "./sceneSubjects/EarthAtmosphere";
 
 interface sceneSubjectsProps {
   light: Light;
   earth: Earth;
+  atmosphere: EarthAtmosphere;
 }
 
 /* Builds the scene components and exposes render and resize functions */
@@ -109,10 +111,15 @@ export class SceneManager {
       this.scene,
       this.eventBus
     );
+    const atmosphere = new EarthAtmosphere(
+      this.scene,
+      earth.mesh.geometry
+    );
 
     return {
       light,
-      earth
+      earth,
+      atmosphere
     };
   }
 
