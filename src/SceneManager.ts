@@ -12,11 +12,13 @@ import { renderCall } from "./events/constants";
 import { Light } from "./sceneSubjects/Light";
 import { Earth } from "./sceneSubjects/Earth";
 import { EarthAtmosphere } from "./sceneSubjects/EarthAtmosphere";
+import { ResourceMonitor } from "./sceneSubjects/ResourceMonitor";
 
 interface sceneSubjectsProps {
   light: Light;
   earth: Earth;
   atmosphere: EarthAtmosphere;
+  stats: ResourceMonitor;
 }
 
 /* Builds the scene components and exposes render and resize functions */
@@ -115,16 +117,21 @@ export class SceneManager {
       this.scene,
       earth.mesh.geometry
     );
+    const stats = new ResourceMonitor(this.eventBus);
 
     return {
       light,
       earth,
-      atmosphere
+      atmosphere,
+      stats
     };
   }
 
   private render() {
     this.renderRequested = false;
+
+    if (this.sceneSubjects)
+      this.sceneSubjects.stats.update();
 
     this.controls.update();
     this.renderer.render(this.scene, this.camera);
