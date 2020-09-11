@@ -13,12 +13,14 @@ import { Light } from "./sceneSubjects/Light";
 import { Earth } from "./sceneSubjects/Earth";
 import { EarthAtmosphere } from "./sceneSubjects/EarthAtmosphere";
 import { ResourceMonitor } from "./sceneSubjects/ResourceMonitor";
+import { GUIControls } from "./sceneSubjects/GuiControls";
 
 interface sceneSubjectsProps {
   light: Light;
   earth: Earth;
   atmosphere: EarthAtmosphere;
   stats: ResourceMonitor;
+  gui: GUIControls;
 }
 
 /* Builds the scene components and exposes render and resize functions */
@@ -117,13 +119,19 @@ export class SceneManager {
       this.scene,
       earth.mesh.geometry
     );
-    const stats = new ResourceMonitor(this.eventBus);
+    const stats = new ResourceMonitor();
+    const gui = new GUIControls(
+      this.eventBus,
+      earth.mesh,
+      atmosphere.earthAtmosphere,
+    );
 
     return {
       light,
       earth,
       atmosphere,
-      stats
+      stats,
+      gui
     };
   }
 

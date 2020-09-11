@@ -1,14 +1,8 @@
 import Stats from "three/examples/jsm/libs/stats.module";
-
-import { EventBus } from "../events/EventBus";
-
 export class ResourceMonitor {
-  private eventBus: EventBus;
   private resourceMonitor: Stats;
 
-  constructor(eventBus: EventBus) {
-    this.eventBus = eventBus;
-
+  constructor() {
     this.resourceMonitor = this.createResourceMonitor();
   }
 
