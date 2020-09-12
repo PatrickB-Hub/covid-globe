@@ -1,0 +1,186 @@
+import {
+  Scene,
+  Object3D,
+  Color,
+  BoxBufferGeometry,
+  MeshBasicMaterial,
+  InstancedMesh,
+  MathUtils
+} from "three";
+import { TWEEN } from "three/examples/jsm/libs/tween.module.min.js";
+
+import {
+  getSceneData,
+  getTotalPoints,
+  getLatestDate,
+  getDateIndex
+} from "../utils/utils";
+
+import { EventBus } from "../events/EventBus.js";
+import { renderCall } from "../events/constants";
+
+import { data } from '../types';
+
+interface helpersProps {
+  lngHelper: Object3D;
+  latHelper: Object3D;
+  positionHelper: Object3D;
+  originHelper: Object3D;
+  colorHelper: Color;
+};
+
+interface transformBoxProps {
+  lng: number,
+  lat: number,
+  hue: number,
+  zScale: number,
+  instanceId: number
+}
+
+export class Boxes {
+  private scene: Scene;
+  private eventBus: EventBus;
+  private data: data;
+  private boxes: { [key: string]: number };
+  private covidDataType: number;
+  private targetDate: string;
+  private helpers: helpersProps;
+
+  mesh: any;
+  isos: string[];
+  numTweensRunning: number;
+
+  constructor(scene: Scene, eventBus: EventBus, data: data) {
+    this.scene = scene;
+    this.eventBus = eventBus;
+    this.data = data;
+    this.mesh = new InstancedMesh(
+      new BoxBufferGeometry(1, 1, 1),
+      new MeshBasicMaterial(),
+      getTotalPoints(this.data)
+    );
+    this.boxes = {};
+    this.covidDataType = 0;
+    this.targetDate = getLatestDate(this.data);
+    this.isos = [];
+    this.numTweensRunning = 0;
+
+    this.helpers = this.createHelpers();
+    this.createBoxes();
+  }
+
+
+  // these helpers make it easier to position the boxes on the sphere
+  private createHelpers() {
+    // We can rotate the lon helper on its Y axis to the longitude
+    const lngHelper = new Object3D();
+    this.scene.add(lngHelper);
+
+    // We rotate the latHelper on its X axis to the latitude
+    const latHelper = new Object3D();
+    lngHelper.add(latHelper);
+
+    // The position helper moves the object to the edge of the sphere
+    const positionHelper = new Object3D();
+    positionHelper.position.z = 1;
+    latHelper.add(positionHelper);
+
+    // Used to move the center of the cube so it scales from the position Z axis
+    const originHelper = new Object3D();
+    originHelper.position.z = 0.5;
+    positionHelper.add(originHelper);
+
+    const colorHelper = new Color();
+
+    return { lngHelper, latHelper, positionHelper, originHelper, colorHelper };
+  }
+
+  private createBoxes() {
+    console.time("render time");
+
+    const hue = 0.6;
+    const zScale = 0.01;
+    const boxInfos = getSceneData(this.data, {
+      targetDateIndex: getDateIndex(this.data, this.targetDate),
+      covidDataType: this.covidDataType
+    });
+    boxInfos.forEach((info, instanceId) => {
+      const { lng, lat, iso } = info;
+      this.transformBox({ lng, lat, hue, zScale, instanceId });
+
+      this.isos.push(iso);
+      this.boxes[`${instanceId}hue`] = hue;
+      this.boxes[`${instanceId}zScale`] = zScale;
+    });
+
+    this.scene.add(this.mesh);
+    this.eventBus.post(renderCall);
+
+    console.timeEnd("render time");
+
+    setTimeout(() => this.updateBoxes(), 2000);
+  }
+
+  private transformBox(props: transformBoxProps) {
+    const { lng, lat, hue, zScale, instanceId } = props;
+
+    const xRotation = MathUtils.degToRad(lat - 180);
+    const yRotation = MathUtils.degToRad(lng - 90);
+
+    // adjust the helpers to point to the latitude and longitude
+    this.helpers.latHelper.rotation.x = xRotation;
+    this.helpers.lngHelper.rotation.y = yRotation;
+
+    // use the world matrix of the origin helper to position this geometry
+    this.helpers.positionHelper.scale.set(0.005, 0.005, zScale);
+    this.helpers.originHelper.updateWorldMatrix(true, false);
+
+    // originHelper.matrixWorld = latHelper.matrix X lngHelper.matrix X positionHelper.matrix
+    this.mesh.setMatrixAt(instanceId, this.helpers.originHelper.matrixWorld);
+    this.mesh.instanceMatrix.needsUpdate = true;
+
+    this.helpers.colorHelper.setHSL(hue, 1, 0.5);
+    this.mesh.setColorAt(instanceId, this.helpers.colorHelper);
+    this.mesh.instanceColor.needsUpdate = true;
+  }
+
+  updateBoxes(duration = 1000) {
+    const prevValues = { ...this.boxes };
+    const boxInfos = getSceneData(this.data, {
+      targetDateIndex: getDateIndex(this.data, this.targetDate),
+      covidDataType: this.covidDataType
+    });
+    const targets: { [key: string]: number } = {};
+    boxInfos.forEach((info, idx) => {
+      targets[`${idx}zScale`] = MathUtils.lerp(0.01, 0.5, info.amount);
+      targets[`${idx}hue`] = MathUtils.lerp(0.6, 0.01, info.amount);
+    });
+
+    // animate to the new set of boxes
+    this.numTweensRunning += 1;
+    const tween = new TWEEN.Tween(this.boxes)
+      .to(targets)
+      .duration(duration)
+      .onUpdate((obj: { [key: string]: number }) => {
+        for (let instanceId = 0; instanceId < this.mesh.count; instanceId++) {
+
+          if (obj[`${instanceId}zScale`] !== prevValues[`${instanceId}zScale`]) {
+
+            this.transformBox({
+              lng: boxInfos[instanceId].lng,
+              lat: boxInfos[instanceId].lat,
+              hue: obj[`${instanceId}hue`],
+              zScale: obj[`${instanceId}zScale`],
+              instanceId
+            });
+          }
+        }
+      })
+      .onComplete(() => {
+        this.numTweensRunning -= 1;
+      })
+      .start();
+
+    this.eventBus.post(renderCall);
+  }
+}

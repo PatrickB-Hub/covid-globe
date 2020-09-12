@@ -5,6 +5,7 @@ import {
   Raycaster
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { TWEEN } from "three/examples/jsm/libs/tween.module.min.js";
 
 import { EventBus } from "./events/EventBus";
 import { renderCall } from "./events/constants";
@@ -12,13 +13,17 @@ import { renderCall } from "./events/constants";
 import { Light } from "./sceneSubjects/Light";
 import { Earth } from "./sceneSubjects/Earth";
 import { EarthAtmosphere } from "./sceneSubjects/EarthAtmosphere";
+import { Boxes } from "./sceneSubjects/Boxes";
 import { ResourceMonitor } from "./sceneSubjects/ResourceMonitor";
 import { GUIControls } from "./sceneSubjects/GuiControls";
+
+import { data } from "./types";
 
 interface sceneSubjectsProps {
   light: Light;
   earth: Earth;
   atmosphere: EarthAtmosphere;
+  boxes: Boxes;
   stats: ResourceMonitor;
   gui: GUIControls;
 }
@@ -29,6 +34,7 @@ export class SceneManager {
   private width: number;
   private height: number;
   private renderRequested: boolean;
+  private data: data;
 
   scene: Scene;
   renderer: WebGLRenderer;
@@ -38,12 +44,13 @@ export class SceneManager {
   raycaster: Raycaster;
   sceneSubjects: sceneSubjectsProps;
 
-  constructor(canvas: HTMLCanvasElement, eventBus: EventBus) {
+  constructor(canvas: HTMLCanvasElement, eventBus: EventBus, data: data) {
     this.canvas = canvas;
     this.eventBus = eventBus;
     this.width = this.canvas.offsetWidth || window.innerWidth;
     this.height = this.canvas.offsetHeight || window.innerHeight;
     this.renderRequested = false;
+    this.data = data;
 
     this.scene = this.buildScene();
     this.renderer = this.buildRender();
@@ -119,6 +126,11 @@ export class SceneManager {
       this.scene,
       earth.mesh.geometry
     );
+    const boxes = new Boxes(
+      this.scene,
+      this.eventBus,
+      this.data
+    );
     const stats = new ResourceMonitor();
     const gui = new GUIControls(
       this.eventBus,
@@ -130,6 +142,7 @@ export class SceneManager {
       light,
       earth,
       atmosphere,
+      boxes,
       stats,
       gui
     };
@@ -137,6 +150,11 @@ export class SceneManager {
 
   private render() {
     this.renderRequested = false;
+
+    if (this.sceneSubjects && this.sceneSubjects.boxes.numTweensRunning > 0) {
+      TWEEN.update();
+      this.requestRenderIfNotRequested();
+    }
 
     if (this.sceneSubjects)
       this.sceneSubjects.stats.update();
