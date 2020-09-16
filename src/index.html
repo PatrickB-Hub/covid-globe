@@ -6,11 +6,133 @@
     <title>Covid-19 Globe</title>
   </head>
   <body>
-    
     <div class="main_content">
       <div class="scene_container">
         <div class="canvas_container">
           <canvas id="canvas"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="ui">
+      <div class="ui_column">
+        <div class="ui_row">
+          <div>
+            <button
+              id="settings-menu"
+              class="ui_element util-pointer ui_button util-margin-right-small"
+              aria-label="Settings"
+              data-overlay="ui_settingsOverlay"
+            >
+              <span class="ui_icon ui_icon--cog"></span>
+            </button>
+
+            <button
+              id="info-modal-button"
+              class="ui_element util-pointer ui_button ui_aboutButton"
+              aria-label="About this project"
+              data-overlay="ui_aboutOverlay"
+            >
+              <span class="ui_icon ui_icon--info"></span>
+            </button>
+          </div>
+
+          <div class="util-pointer ui_stats-type">
+            <div id="type-count" class="ui_element ui_stats-type-count">-</div>
+            <label class="ui_stats-type-label">
+              <select
+                id="type-options"
+                class="ui_element ui_stats-type-select"
+                aria-label="What to visualize"
+              >
+                <option value="cases">Cases</option>
+                <option value="active">Active</option>
+                <option value="deaths">Deaths</option>
+                <option value="recovered">Recovered</option>
+              </select>
+              <span
+                class="ui_icon ui_icon--chevron-down ui_stats-type-icon"
+              ></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="ui_row util-negative-margin-top util-pointer">
+          <div id="settings-options" class="ui_settings">
+            <button
+              id="stats-button"
+              class="ui_element ui_button"
+              aria-label="Toggle GPU/MEM Monitor"
+            >
+              Resource Monitor
+            </button>
+            <button
+              id="controls-button"
+              class="ui_element ui_button"
+              aria-label="Toggle GUI Controls"
+            >
+              GUI Controls
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ui_row ui_row-bottom">
+        <button
+          id="timeseries-button"
+          class="ui_element util-pointer ui_button ui_playButton"
+          aria-label="Play/Pause timeseries"
+        >
+          <span class="ui_icon ui_icon--play"></span>
+        </button>
+        <input
+          id="timeseries-slider"
+          type="range"
+          min="1"
+          step="1"
+          class="ui_element util-pointer ui_slider ui_dateSlider"
+          aria-label="Timeseries slider"
+        />
+        <input
+          id="timeseries-input"
+          type="date"
+          class="ui_element util-pointer ui_datepicker"
+          aria-label="Timeseries date input"
+        />
+      </div>
+
+      <div id="info-modal" class="ui_modal util-pointer">
+        <div id="info-modal-box" class="ui_modal-content ui_element">
+          <h2>Covid-19 Globe</h2>
+          <p>by <strong>Patrick Becker</strong></p>
+          <p>
+            <a
+              class="ui_modal-link"
+              target="_blank"
+              href="https://patrickbecker.me"
+              >Website</a
+            >
+            |
+            <a
+              class="ui_modal-link"
+              target="_blank"
+              href="https://github.com/"
+              >Github</a
+            >
+          </p>
+          <p>
+            Aggregated data by
+            <a
+              class="ui_modal-link"
+              target="_blank"
+              href="https://github.com/covidatlas/li/"
+              >Li</a
+            >
+          </p>
+          <p>
+            <strong>Note:</strong> The globe shows covid-19 data per area, in
+            relation to the population. Data may be incomplete or out of date.
+          </p>
         </div>
       </div>
     </div>

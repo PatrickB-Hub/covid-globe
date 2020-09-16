@@ -50,6 +50,16 @@ export function getLatestDate(data: data): string {
     return data.totalEndDate;
 }
 
+// converts number to a more readable string format - e.g. 31470367 to 31,470,367
+function toNumString(num: number) {
+    return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+}
+
+// returns total for a given type
+export function getCovidTypeCount(data: any, covidDataType: number, dateRange: { [key: string]: number }, targetDate: string) {
+    return toNumString(data.totalCovidData[covidDataType][dateRange[targetDate]]);
+}
+
 interface getSceneDataProps {
     targetDateIndex: number,
     covidDataType: number,

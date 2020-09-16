@@ -1,0 +1,41 @@
+.ui {
+  pointer-events: none;
+}
+
+.ui_element {
+  font-size: $default-font-size;
+  padding: 10px;
+  outline: none;
+  border: none;
+  border-radius: 5px;
+  background-color: $color-primary;
+}
+
+.ui_row {
+  padding: 20px 25px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  &-bottom {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+
+    @media (max-width: 1200px) {
+      bottom: 0vh;
+    }
+  }
+}
+
+.ui_column {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: space-between;
+}

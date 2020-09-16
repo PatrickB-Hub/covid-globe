@@ -1,0 +1,8 @@
+.ui_datepicker {
+  box-shadow: $shadow-primary;
+
+  &:hover {
+    background-color: $color-primary-light;
+    cursor: pointer;
+  }
+}

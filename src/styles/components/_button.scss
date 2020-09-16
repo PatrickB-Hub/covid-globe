@@ -1,0 +1,12 @@
+.ui_button {
+  font-size: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: $shadow-primary;
+
+  &:hover {
+    background-color: $color-primary-light;
+    cursor: pointer;
+  }
+}

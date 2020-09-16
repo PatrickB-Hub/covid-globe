@@ -1,0 +1,76 @@
+@charset "UTF-8";
+
+@font-face {
+  font-family: "icomoon";
+  src: url("fonts/icomoon.ttf?mvh2u") format("truetype"),
+    url("fonts/icomoon.woff?mvh2u") format("woff"),
+    url("fonts/icomoon.svg?mvh2u#icomoon") format("svg");
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+body {
+  font-family: monospace;
+  font-weight: 400;
+  line-height: 1.7;
+}
+
+.ui_icon {
+  font-family: "icomoon" !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.ui_icon--choropleth:before {
+  content: "\e90c";
+}
+.ui_icon--heatmap:before {
+  content: "\e90d";
+}
+.ui_icon--globe:before {
+  content: "\e90a";
+}
+.ui_icon--chevron-down:before {
+  content: "\e908";
+}
+.ui_icon--close:before {
+  content: "\e90b";
+}
+.ui_icon--search:before {
+  content: "\e90e";
+}
+.ui_icon--paper:before {
+  content: "\e909";
+}
+.ui_icon--list:before {
+  content: "\e906";
+}
+.ui_icon--cog:before {
+  content: "\e907";
+}
+.ui_icon--info:before {
+  content: "\e901";
+}
+.ui_icon--location:before {
+  content: "\e902";
+}
+.ui_icon--menu:before {
+  content: "\e903";
+}
+.ui_icon--pause:before {
+  content: "\e904";
+}
+.ui_icon--play:before {
+  content: "\e905";
+}
+.ui_icon--spinner:before {
+  content: "\e900";
+}

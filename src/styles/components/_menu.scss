@@ -1,0 +1,19 @@
+.ui_settings {
+  display: none;
+  flex-direction: column;
+  box-shadow: $shadow-primary;
+  border-radius: 5px;
+  padding: 5px 0;
+  background-color: $color-primary;
+
+  & > * {
+    font-family: $default-font-family;
+    font-size: $default-font-size;
+    text-align: left;
+    border-radius: 0;
+    margin: 0;
+    padding: 7px;
+    background-color: transparent;
+    box-shadow: none;
+  }
+}

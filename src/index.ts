@@ -2,6 +2,7 @@ import './styles/main.scss';
 
 import { EventBus } from './events/EventBus';
 import { SceneManager } from './SceneManager';
+import { UIManager } from './UIManager';
 
 import { data } from './types';
 
@@ -13,6 +14,8 @@ async function init() {
 
   const eventBus = new EventBus();
   const sceneManager = new SceneManager(canvas, eventBus, data);
+
+  new UIManager(data);
 
   window.onresize = () => {
     resizeCanvas();
