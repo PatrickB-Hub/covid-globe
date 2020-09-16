@@ -136,6 +136,7 @@ export class SceneManager {
       this.eventBus,
       earth.mesh,
       atmosphere.earthAtmosphere,
+      boxes.mesh
     );
 
     return {

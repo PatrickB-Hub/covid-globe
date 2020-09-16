@@ -1,5 +1,7 @@
 import {
   Mesh,
+  InstancedMesh,
+  BoxBufferGeometry,
   SphereBufferGeometry,
   MeshPhysicalMaterial,
   MeshBasicMaterial,
@@ -20,23 +22,27 @@ export class GUIControls {
   private eventBus: EventBus;
   private sphereMesh: Mesh<SphereBufferGeometry, MeshPhysicalMaterial>;
   private atmosphereMesh: Mesh<SphereBufferGeometry, ShaderMaterial>;
+  private pointsMesh: InstancedMesh<BoxBufferGeometry, MeshBasicMaterial>;
 
   private materialData: { color: number; emissive: number; glowColor: string; };
 
   constructor(
     eventBus: EventBus,
     sphereMesh: Mesh<SphereBufferGeometry, MeshPhysicalMaterial>,
-    atmosphereMesh: Mesh<SphereBufferGeometry, ShaderMaterial>
+    atmosphereMesh: Mesh<SphereBufferGeometry, ShaderMaterial>,
+    pointsMesh: InstancedMesh<BoxBufferGeometry, MeshBasicMaterial>
   ) {
     this.eventBus = eventBus;
     this.sphereMesh = sphereMesh;
     this.atmosphereMesh = atmosphereMesh;
+    this.pointsMesh = pointsMesh;
 
     this.materialData = this.createMaterialData();
     this.createBasicMaterialControls();
     this.createAdvancedMaterialControls();
     this.createSphereTransformationControls();
     this.createAtmosphereControls();
+    this.createPointsControls();
   }
 
   private gui = new GUI();
@@ -150,5 +156,10 @@ export class GUIControls {
     material.side = Number(material.side);
     material.needsUpdate = true;
     this.eventBus.post(renderCall)
+  }
+
+  private createPointsControls() {
+    const boxesFolder = this.gui.addFolder("Boxes");
+    boxesFolder.add(this.pointsMesh.material, "visible").onChange(() => this.eventBus.post(renderCall));
   }
 }
