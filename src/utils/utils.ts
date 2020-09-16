@@ -1,3 +1,4 @@
+import { data } from "../types";
 
 // convert Date object to string - month/day/year
 export function toDateString(date: Date) {
@@ -9,7 +10,7 @@ export function toDateString(date: Date) {
 }
 
 // returns all dates with covid data
-export function getDateRange(data: any, startDate = data.totalStartDate, endDate = data.totalEndDate) {
+export function getDateRange(data: data, startDate = data.totalStartDate, endDate = data.totalEndDate) {
     const startDateTimestamp = new Date(startDate).getTime();
     const endDateTimestamp = new Date(endDate).getTime();
 
@@ -31,7 +32,7 @@ export function getDateRange(data: any, startDate = data.totalStartDate, endDate
 }
 
 // returns index of a given date in dateRange
-export function getDateIndex(data: any, date: string, dateRange = getDateRange(data), startDate = data.totalStartDate, endDate = data.totalEndDate) {
+export function getDateIndex(data: data, date: string, dateRange = getDateRange(data), startDate = data.totalStartDate, endDate = data.totalEndDate) {
     if (dateRange.hasOwnProperty(date)) {
         if (dateRange[date] < dateRange[endDate]) {
             return Math.max(dateRange[date], 0);
@@ -45,7 +46,7 @@ export function getDateIndex(data: any, date: string, dateRange = getDateRange(d
 }
 
 // returns latest date with covid data
-export function getLatestDate(data: any): string {
+export function getLatestDate(data: data): string {
     return data.totalEndDate;
 }
 
@@ -58,7 +59,7 @@ interface getSceneDataProps {
 }
 
 // returns all data points with latitude, longitude, a rate adjusted value and iso 
-export function getSceneData(data: any, props: getSceneDataProps) {
+export function getSceneData(data: data, props: getSceneDataProps) {
 
     const {
         targetDateIndex,
@@ -139,7 +140,7 @@ export function getSceneData(data: any, props: getSceneDataProps) {
 }
 
 // returns the amount of points (coordinate pairs)
-export function getTotalPoints(data: any) {
+export function getTotalPoints(data: data) {
     let count = 0;
     const keys = Object.keys(data.coords);
     keys.forEach(k => {
