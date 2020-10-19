@@ -15,7 +15,12 @@ async function init() {
   const eventBus = new EventBus();
   const sceneManager = new SceneManager(canvas, eventBus, data);
 
-  new UIManager(data);
+  new UIManager(
+    sceneManager.renderer,
+    sceneManager.sceneSubjects.boxes.isos,
+    eventBus,
+    data
+  );
 
   window.onresize = () => {
     resizeCanvas();

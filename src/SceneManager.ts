@@ -8,7 +8,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { TWEEN } from "three/examples/jsm/libs/tween.module.min.js";
 
 import { EventBus } from "./events/EventBus";
-import { renderCall } from "./events/constants";
+import { renderCall, earthIntersection } from "./events/constants";
 
 import { Light } from "./sceneSubjects/Light";
 import { Earth } from "./sceneSubjects/Earth";
@@ -111,6 +111,11 @@ export class SceneManager {
         y: -(event.clientY / this.renderer.domElement.clientHeight) * 2 + 1,
       };
       raycaster.setFromCamera(mouse, this.camera);
+
+      // intersect both the instancedMesh and the sphereMesh
+      const intersects = raycaster.intersectObjects([this.sceneSubjects.boxes.mesh, this.sceneSubjects.earth.mesh]);
+
+      this.eventBus.post(earthIntersection, intersects, mouse);
     }
 
     return raycaster;

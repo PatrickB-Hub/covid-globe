@@ -159,3 +159,32 @@ export function getTotalPoints(data: data) {
 
     return count;
 }
+
+// returns the url of the country flag
+export function getCountryFlag(data: any, iso: string): string {
+    if (!data.info[iso.split("-")[0]][7])
+        return "";
+
+    return data.info[iso.split("-")[0]][7];
+}
+
+// returns the coutry name for a given iso
+export function getCountryName(data: any, iso: string): string {
+    if (!data.info[iso][0]) {
+        return "";
+    }
+
+    return data.info[iso][0];
+}
+
+// returns additional information for a given country
+export function getCountryDetails(data: any, date: string, iso: string, covidType: string, covidTypeIndex: number): { [key: string]: string } {
+    if (!data.info[iso][2]) {
+        return {};
+    }
+
+    return {
+        [covidType]: toNumString(data.info[iso][5][covidTypeIndex][getDateIndex(data, date)]),
+        population: toNumString(data.info[iso][2])
+    };
+}

@@ -5,7 +5,8 @@ import {
   BoxBufferGeometry,
   MeshBasicMaterial,
   InstancedMesh,
-  MathUtils
+  MathUtils,
+  Intersection
 } from "three";
 import { TWEEN } from "three/examples/jsm/libs/tween.module.min.js";
 
@@ -13,13 +14,23 @@ import {
   getSceneData,
   getTotalPoints,
   getLatestDate,
-  getDateIndex
+  getDateRange,
+  getDateIndex,
+  getCovidTypeCount
 } from "../utils/utils";
 
 import { EventBus } from "../events/EventBus.js";
-import { renderCall } from "../events/constants";
+import {
+  covidTypeChange,
+  covidTypeCountChange,
+  earthIntersection,
+  renderCall,
+  timeseriesAction,
+  timeseriesInputChange,
+  timeseriesSliderChange
+} from "../events/constants";
 
-import { data } from '../types';
+import { data } from "../types";
 
 interface helpersProps {
   lngHelper: Object3D;
@@ -40,9 +51,11 @@ interface transformBoxProps {
 export class Boxes {
   private scene: Scene;
   private eventBus: EventBus;
-  private data: data;
+  private data: any;
+  private currentIso: string;
   private boxes: { [key: string]: number };
   private covidDataType: number;
+  private currentDate: string;
   private targetDate: string;
   private helpers: helpersProps;
 
@@ -54,6 +67,7 @@ export class Boxes {
     this.scene = scene;
     this.eventBus = eventBus;
     this.data = data;
+    this.currentIso = "World";
     this.mesh = new InstancedMesh(
       new BoxBufferGeometry(1, 1, 1),
       new MeshBasicMaterial(),
@@ -61,6 +75,7 @@ export class Boxes {
     );
     this.boxes = {};
     this.covidDataType = 0;
+    this.currentDate = "";
     this.targetDate = getLatestDate(this.data);
     this.isos = [];
     this.numTweensRunning = 0;
@@ -70,7 +85,7 @@ export class Boxes {
   }
 
 
-  // these helpers make it easier to position the boxes on the sphere
+  // these helpers make it easier to position the boxes
   private createHelpers() {
     // We can rotate the lon helper on its Y axis to the longitude
     const lngHelper = new Object3D();
@@ -116,6 +131,15 @@ export class Boxes {
     this.scene.add(this.mesh);
     this.eventBus.post(renderCall);
 
+    this.eventBus.subscribe(
+      covidTypeChange,
+      (type: number) => {
+        this.covidDataType = type;
+        this.updateBoxes();
+      });
+    this.eventBus.subscribe(timeseriesAction, this.handleTimeseriesAction.bind(this));
+    this.eventBus.subscribe(earthIntersection, this.highlightBoxes.bind(this));
+
     console.timeEnd("render time");
 
     setTimeout(() => this.updateBoxes(), 2000);
@@ -145,6 +169,8 @@ export class Boxes {
   }
 
   updateBoxes(duration = 1000) {
+    this.currentDate = this.targetDate;
+
     const prevValues = { ...this.boxes };
     const boxInfos = getSceneData(this.data, {
       targetDateIndex: getDateIndex(this.data, this.targetDate),
@@ -181,6 +207,54 @@ export class Boxes {
       })
       .start();
 
+    this.eventBus.post(covidTypeCountChange, getCovidTypeCount(this.data, this.covidDataType, getDateRange(this.data), this.targetDate));
     this.eventBus.post(renderCall);
+  }
+
+  private handleTimeseriesAction(target: string, event: any) {
+    const dateRange = getDateRange(this.data);
+    this.targetDate = target;
+
+    if ((event.target.type === "range" &&
+      this.currentDate !== Object.keys(dateRange)[event.target.valueAsNumber]) ||
+      (event.target.type === "date" && this.currentDate !== event.target.value))
+      this.updateBoxes();
+    else
+      this.updateBoxes(5000);
+
+    this.eventBus.post(timeseriesSliderChange, dateRange[this.targetDate].toString());
+    this.eventBus.post(timeseriesInputChange, this.targetDate);
+  }
+
+  private highlightBoxes(intersects: Intersection[]) {
+    const canvas = document.body.querySelector("canvas");
+    canvas.onclick = () => { };
+
+    // checks if instancedMesh is intersected and visible to the user
+    if (intersects.length > 0 && intersects[0].instanceId) {
+      const intersectedIso = this.isos[intersects[0].instanceId].split("-")[0];
+
+      if (intersectedIso !== this.currentIso.split("-")[0]) {
+        this.currentIso = intersectedIso;
+
+        this.isos.forEach((iso, idx) => {
+          if (iso.split("-")[0] === intersectedIso) {
+            this.mesh.setColorAt(
+              idx,
+              this.helpers.colorHelper.setHSL(this.boxes[`${idx}hue`], 1, .95)
+            );
+          } else {
+            this.mesh.setColorAt(
+              idx,
+              this.helpers.colorHelper.setHSL(this.boxes[`${idx}hue`], 1, .5)
+            );
+          }
+        });
+        this.mesh.instanceColor.needsUpdate = true;
+        this.eventBus.post(renderCall);
+      }
+    } else {
+      document.body.querySelector("canvas").style.cursor = "move";
+    }
   }
 }
