@@ -25,6 +25,7 @@ import {
   covidTypeCountChange,
   earthIntersection,
   renderCall,
+  showCard,
   timeseriesAction,
   timeseriesInputChange,
   timeseriesSliderChange
@@ -226,7 +227,12 @@ export class Boxes {
     this.eventBus.post(timeseriesInputChange, this.targetDate);
   }
 
-  private highlightBoxes(intersects: Intersection[]) {
+  private highlightBoxes(intersects: Intersection[], mouse: { x: number, y: number }) {
+
+    const countryCard = <HTMLElement>document.getElementById("card");
+    // hide country card
+    countryCard.classList.remove("visible");
+
     const canvas = document.body.querySelector("canvas");
     canvas.onclick = () => { };
 
@@ -252,6 +258,11 @@ export class Boxes {
         });
         this.mesh.instanceColor.needsUpdate = true;
         this.eventBus.post(renderCall);
+      } else {
+        canvas.style.cursor = "pointer";
+        canvas.onclick = () => {
+          this.eventBus.post(showCard, intersects, mouse);
+        }
       }
     } else {
       document.body.querySelector("canvas").style.cursor = "move";

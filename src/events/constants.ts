@@ -18,3 +18,5 @@ export const earthIntersection = "earthIntersection";
 
 export const areaChange = "areaChanges";
 
+export const showCard = "showCard";
+

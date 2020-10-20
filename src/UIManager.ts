@@ -19,7 +19,8 @@ import {
   timeseriesSliderChange,
   timeseriesInputChange,
   toggleGUI,
-  toggleStats
+  toggleStats,
+  showCard
 } from "./events/constants";
 
 import { data } from "./types";
@@ -41,6 +42,12 @@ export class UIManager {
   private intersectedIso: string;
   private targetDate: string;
   private currentDate: string;
+  private countryCardUI: {
+    countryCard: HTMLElement;
+    countryCardTitle: HTMLElement;
+    countryCardFlag: HTMLElement;
+    countryCardDetails: HTMLElement
+  };
 
   constructor(renderer: WebGLRenderer, isos: string[], eventBus: EventBus, data: data) {
     this.renderer = renderer;
@@ -53,6 +60,7 @@ export class UIManager {
     this.currentDate = this.targetDate;
 
     this.createUIEventListeners();
+    this.countryCardUI = this.createCountryCard();
   }
 
   private createUIEventListeners() {
@@ -127,5 +135,63 @@ export class UIManager {
     }
     this.eventBus.subscribe(timeseriesSliderChange, (val: string) => timeseriesSlider.value = val)
     this.eventBus.subscribe(timeseriesInputChange, (val: string) => timeseriesInput.value = val)
+  }
+
+  private createCountryCard() {
+    const countryCard = <HTMLElement>document.getElementById("card");
+    const countryCardFlag = <HTMLElement>document.getElementById("card-image");
+    const countryCardTitle = <HTMLElement>document.getElementById("card-title");
+    const countryCardDetails = <HTMLElement>document.getElementById("card-details");
+
+    this.eventBus.subscribe(showCard, this.updateCountryCard.bind(this));
+
+    return { countryCard, countryCardTitle, countryCardFlag, countryCardDetails };
+  }
+
+  // show country card when one of the points gets intersected
+  private updateCountryCard(intersects: Intersection[], mouse: { x: number, y: number }) {
+
+    // remove all country card details 
+    while (this.countryCardUI.countryCardDetails.firstChild)
+      this.countryCardUI.countryCardDetails.removeChild(this.countryCardUI.countryCardDetails.firstChild);
+
+    // check if sphere gets intersected
+    if (intersects.length > 0 && intersects[0].instanceId) {
+      this.intersectedIso = this.isos[intersects[0].instanceId].split("-")[0];
+
+      // show county card
+      this.countryCardUI.countryCard.classList.toggle("visible");
+
+      const countryFlagSrc = getCountryFlag(this.data, this.intersectedIso);
+      if (countryFlagSrc)
+        this.countryCardUI.countryCardFlag.setAttribute("src", countryFlagSrc);
+
+      const countryName = getCountryName(this.data, this.intersectedIso);
+      if (countryName)
+        this.countryCardUI.countryCardTitle.textContent = countryName;
+
+      const countryDetails = getCountryDetails(
+        this.data,
+        this.targetDate,
+        this.intersectedIso,
+        covidDataTypes[this.covidTypeIndex],
+        this.covidTypeIndex,
+      );
+      const countryDetailsKeys = Object.keys(countryDetails);
+      if (countryDetails) {
+        countryDetailsKeys.forEach(detail => {
+          const listElement = document.createElement("li");
+          listElement.textContent = `${detail}: ${countryDetails[detail]}`;
+          this.countryCardUI.countryCardDetails.appendChild(listElement);
+        });
+      }
+
+      // convert the normalized position to CSS coordinates
+      const x = (mouse.x * .5 + .5) * this.renderer.domElement.clientWidth;
+      const y = (mouse.y * -.5 + .5) * this.renderer.domElement.clientHeight;
+
+      // position card slightly above the cursor
+      this.countryCardUI.countryCard.style.transform = `translate(-50%, -50%) translate(${x}px,${y - 40}px)`;
+    }
   }
 }
