@@ -16,6 +16,8 @@
   "author": "Patrick Becker",
   "license": "MIT",
   "dependencies": {
+    "d3": "^6.1.1",
+    "d3-collection": "^1.0.7",
     "three": "^0.120.1"
   },
   "devDependencies": {

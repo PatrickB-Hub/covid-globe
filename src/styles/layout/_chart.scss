@@ -1,0 +1,50 @@
+.chart_container {
+  width: 40vw;
+  height: 100%;
+  padding-right: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.chart {
+  width: 100%;
+  height: 70%;
+  display: flex;
+  flex-direction: column;
+  box-shadow: $shadow-primary;
+  pointer-events: auto;
+
+  &-heading {
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+
+  &-wrapper {
+    height: 90%;
+  }
+
+  text {
+    font-family: $default-font-family;
+    font-size: $default-font-size;
+  }
+}
+
+@media (max-width: 1200px) {
+  .chart_container {
+    width: 100%;
+    height: 100vh;
+    padding: 25px;
+    margin: 0 auto;
+  }
+
+  .chart {
+    max-width: 900px;
+    height: 80%;
+    margin: 0 auto;
+
+    &-heading {
+      margin-bottom: .5rem;
+    }
+  }
+}

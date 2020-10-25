@@ -14,4 +14,8 @@ html {
 
 body {
   background: url("../images/bg_blue.jpg") repeat fixed;
+
+  :focus {
+    outline: none;
+  }
 }

@@ -1,9 +1,23 @@
 .scene_container {
   height: 100vh;
+  display: flex;
+  flex-direction: row;
 }
 
 .canvas_container {
-  width: 100%;
+  width: 60vw;
   height: 100%;
   cursor: move;
+}
+
+@media (max-width: 1200px) {
+  .scene_container {
+    flex-direction: column;
+    height: 200vh;
+  }
+
+  .canvas_container {
+    width: 100%;
+    height: 100vh;
+  }
 }
