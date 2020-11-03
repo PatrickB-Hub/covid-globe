@@ -4,8 +4,40 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Covid-19 Globe</title>
+
+    <style>
+      body {
+        background: #456386;
+        overflow: hidden;
+      }
+
+      .preloader {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #456386;
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        z-index: 99999999;
+      }
+
+      .preloader img {
+        width: 200px;
+      }
+
+      .ui_card {
+        visibility: hidden;
+      }
+    </style>
   </head>
   <body>
+    <div id="loader" class="preloader">
+      <img src="./images/rings.svg" />
+    </div>
+
     <div class="main_content">
       <div class="scene_container">
         <div class="canvas_container">
@@ -149,5 +181,11 @@
         </div>
       </div>
     </div>
+
+    <script>
+      window.onload = function () {
+        document.getElementById("loader").style.display = "none";
+      };
+    </script>
   </body>
 </html>

@@ -10,7 +10,7 @@ import { data } from './types';
 const canvas = <HTMLCanvasElement>document.getElementById('canvas');
 
 async function init() {
-  const res = await fetch('/dist/covid_data_geojson.json');
+  const res = await fetch('/dist/covid_data.json');
   const data: data = await res.json();
 
   const eventBus = new EventBus();

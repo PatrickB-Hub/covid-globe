@@ -148,14 +148,14 @@ export class ChartManager {
 		legend
 			.append("rect")
 			.attr("width", 12)
-			.attr("height", 4)
+			.attr("height", 6)
 			.attr("fill", (d: { [key: string]: string }) => colorRange[d.key]);
 
 		legend
 			.append("text")
 			.attr("class", "legend")
-			.attr("x", 16)
-			.attr("y", 6)
+			.attr("x", 18)
+			.attr("y", 8)
 			.attr("text-anchor", "start")
 			.text(function (d) {
 				return d.values[0].type;
