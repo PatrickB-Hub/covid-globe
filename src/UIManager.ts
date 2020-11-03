@@ -142,6 +142,9 @@ export class UIManager {
     const countryCardFlag = <HTMLElement>document.getElementById("card-image");
     const countryCardTitle = <HTMLElement>document.getElementById("card-title");
     const countryCardDetails = <HTMLElement>document.getElementById("card-details");
+    const countryCardLink = <HTMLElement>document.getElementById("card-link");
+
+    countryCardLink.addEventListener("click", () => this.eventBus.post(areaChange, this.intersectedIso));
 
     this.eventBus.subscribe(showCard, this.updateCountryCard.bind(this));
 

@@ -68,11 +68,13 @@ export class ChartManager {
 		let xAxis = svg
 			.append("g")
 			.attr("transform", `translate(0, ${height - marginY})`)
+			.attr("stroke-width", 1.2)
 			.call(axisBottom(xScale).ticks(5).tickPadding(3));
 
 		let yAxis = svg
 			.append("g")
 			.attr("transform", `translate(${marginX * 2}, 0)`)
+			.attr("stroke-width", 1.2)
 			.call(
 				axisLeft(yScale).ticks(5).tickFormat(format(".1s")).tickPadding(3)
 			);
@@ -94,7 +96,7 @@ export class ChartManager {
 			selectAll(path._groups["0"]).each(function (d, i) {
 				select(this)
 					.transition()
-					.attr("stroke-width", 2)
+					.attr("stroke-width", 2.5)
 					.delay(i * 250)
 					.duration(3000)
 					.attrTween("stroke-dasharray", tweenDash);
