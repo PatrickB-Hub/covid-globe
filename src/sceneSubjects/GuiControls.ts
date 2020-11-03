@@ -16,13 +16,14 @@ import {
 import { GUI } from "three/examples/jsm/libs/dat.gui.module";
 
 import { EventBus } from "../events/EventBus";
-import { renderCall } from "../events/constants";
+import { renderCall, toggleGUI } from "../events/constants";
 
 export class GUIControls {
   private eventBus: EventBus;
   private sphereMesh: Mesh<SphereBufferGeometry, MeshPhysicalMaterial>;
   private atmosphereMesh: Mesh<SphereBufferGeometry, ShaderMaterial>;
   private pointsMesh: InstancedMesh<BoxBufferGeometry, MeshBasicMaterial>;
+  private guiElement: HTMLElement;
 
   private materialData: { color: number; emissive: number; glowColor: string; };
 
@@ -37,15 +38,22 @@ export class GUIControls {
     this.atmosphereMesh = atmosphereMesh;
     this.pointsMesh = pointsMesh;
 
+    this.guiElement = <HTMLElement>document.querySelector(".dg");
     this.materialData = this.createMaterialData();
     this.createBasicMaterialControls();
     this.createAdvancedMaterialControls();
     this.createSphereTransformationControls();
     this.createAtmosphereControls();
     this.createPointsControls();
+    this.toggleGUI();
+    this.subscribeToEvents();
   }
 
   private gui = new GUI();
+
+  toggleGUI() {
+    this.guiElement.classList.toggle("util-display-none");
+  }
 
   private options = {
     side: {
@@ -161,5 +169,9 @@ export class GUIControls {
   private createPointsControls() {
     const boxesFolder = this.gui.addFolder("Boxes");
     boxesFolder.add(this.pointsMesh.material, "visible").onChange(() => this.eventBus.post(renderCall));
+  }
+
+  private subscribeToEvents() {
+    this.eventBus.subscribe(toggleGUI, this.toggleGUI.bind(this));
   }
 }

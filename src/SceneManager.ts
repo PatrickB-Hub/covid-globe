@@ -136,7 +136,7 @@ export class SceneManager {
       this.eventBus,
       this.data
     );
-    const stats = new ResourceMonitor();
+    const stats = new ResourceMonitor(this.eventBus);
     const gui = new GUIControls(
       this.eventBus,
       earth.mesh,
