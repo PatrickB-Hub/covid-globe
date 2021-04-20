@@ -32,7 +32,7 @@ NOTE: In the rest of the documentation, you will come across npm being used for 
 
 ## Running
 
-Make sure the necessary dependencies are installed, and type the command `npm run dev`.
+Make sure the necessary dependencies are installed, and type the command `npm run dev`
 
 ## Testing
 
