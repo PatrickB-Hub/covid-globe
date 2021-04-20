@@ -53,7 +53,7 @@ export class SceneManager {
     this.data = data;
 
     this.scene = this.buildScene();
-    this.renderer = this.buildRender();
+    this.renderer = this.buildRenderer();
     this.camera = this.buildCamera();
     this.controls = this.buildControls();
     this.raycaster = this.buildRaycaster();
@@ -66,7 +66,7 @@ export class SceneManager {
     return scene;
   }
 
-  private buildRender() {
+  private buildRenderer() {
     const renderer = new WebGLRenderer({ canvas: this.canvas, antialias: true, alpha: true });
     const DPR = (window.devicePixelRatio) ? window.devicePixelRatio : 1;
     renderer.setPixelRatio(DPR);

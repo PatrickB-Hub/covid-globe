@@ -40,8 +40,8 @@ There are currently no tests. (This would be a great way to contribute!)
 
 ## Technologies
 
-- [Webpack](https://webpack.js.org/)
 - [TypeScript](https://www.typescriptlang.org/)
 - [Three.js](https://threejs.org/)
 - [D3.js](https://d3js.org/)
+- [Webpack](https://webpack.js.org/)
 - [Sass](https://sass-lang.com/)
