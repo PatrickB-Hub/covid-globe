@@ -6,13 +6,12 @@
     url("fonts/icomoon.woff?mvh2u") format("woff"),
     url("fonts/icomoon.svg?mvh2u#icomoon") format("svg");
   font-weight: normal;
-  font-style: normal;
-  font-display: block;
 }
 
 body {
-  font-family: monospace;
-  font-weight: 600;
+  font-family: "Fira Sans", sans-serif, Verdana, sans-serif;
+  // font-family: "icomoon";
+  // font-weight: 600;
   line-height: 1.7;
 }
 

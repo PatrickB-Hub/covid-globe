@@ -19,7 +19,7 @@
     text-align: center;
     background-color: $color-primary;
     margin: auto;
-    padding: 1.5rem 3rem;
+    padding: 2rem 3rem;
     width: 50%;
     box-shadow: $shadow-primary;
 
@@ -39,7 +39,7 @@
   &-link {
     &,
     &:visited {
-      font-size: 1.7rem;
+      font-size: 1.5rem;
       font-weight: 700;
       color: $color-black;
     }
