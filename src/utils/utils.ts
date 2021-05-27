@@ -1,4 +1,3 @@
-import { data } from "../types";
 
 // convert Date object to string - month/day/year
 export function toDateString(date: Date) {
@@ -10,7 +9,7 @@ export function toDateString(date: Date) {
 }
 
 // returns all dates with covid data
-export function getDateRange(data: data, startDate = data.totalStartDate, endDate = data.totalEndDate) {
+export function getDateRange(data: any, startDate = data.totalStartDate, endDate = data.totalEndDate) {
 	const startDateTimestamp = new Date(startDate).getTime();
 	const endDateTimestamp = new Date(endDate).getTime();
 
@@ -32,7 +31,7 @@ export function getDateRange(data: data, startDate = data.totalStartDate, endDat
 }
 
 // returns index of a given date in dateRange
-export function getDateIndex(data: data, date: string, dateRange = getDateRange(data), startDate = data.totalStartDate, endDate = data.totalEndDate) {
+export function getDateIndex(data: any, date: string, dateRange = getDateRange(data), startDate = data.totalStartDate, endDate = data.totalEndDate) {
 	if (dateRange.hasOwnProperty(date)) {
 		if (dateRange[date] < dateRange[endDate]) {
 			return Math.max(dateRange[date], 0);
@@ -46,7 +45,7 @@ export function getDateIndex(data: data, date: string, dateRange = getDateRange(
 }
 
 // returns latest date with covid data
-export function getLatestDate(data: data): string {
+export function getLatestDate(data: any): string {
 	return data.totalEndDate;
 }
 
@@ -69,7 +68,7 @@ interface getSceneDataProps {
 }
 
 // returns all data points with latitude, longitude, a rate adjusted value and iso 
-export function getSceneData(data: data, props: getSceneDataProps) {
+export function getSceneData(data: any, props: getSceneDataProps) {
 
 	const {
 		targetDateIndex,
@@ -149,15 +148,13 @@ export function getSceneData(data: data, props: getSceneDataProps) {
 	return boxInfos;
 }
 
-// returns the amount of points (coordinate pairs)
-export function getTotalPoints(data: data) {
-	let count = 0;
-	const keys = Object.keys(data.coords);
-	keys.forEach(k => {
-		count += data.coords[k][0].length;
-	})
+// returns the coutry name for a given iso
+export function getCountryName(data: any, iso: string): string {
+	if (!data.info[iso][0]) {
+		return "";
+	}
 
-	return count;
+	return data.info[iso][0];
 }
 
 // returns the url of the country flag
@@ -166,15 +163,6 @@ export function getCountryFlag(data: any, iso: string): string {
 		return "";
 
 	return data.info[iso.split("-")[0]][7];
-}
-
-// returns the coutry name for a given iso
-export function getCountryName(data: any, iso: string): string {
-	if (!data.info[iso][0]) {
-		return "";
-	}
-
-	return data.info[iso][0];
 }
 
 // returns additional information for a given country
@@ -189,6 +177,16 @@ export function getCountryDetails(data: any, date: string, iso: string, covidTyp
 	};
 }
 
+// returns the amount of points (coordinate pairs)
+export function getTotalPoints(data: any) {
+	let count = 0;
+	const keys = Object.keys(data.coords);
+	keys.forEach(k => {
+		count += data.coords[k][0].length;
+	})
+
+	return count;
+}
 
 interface getChartDataProps {
 	targetDateIndex: number,
@@ -262,7 +260,7 @@ export function getChartData(data: any, props: getChartDataProps) {
 						key: 2,
 						type: "Active",
 						country: countryData.country,
-						covidInfo: Math.max(cases - recovered, 0),
+						covidInfo: Math.max(cases - recovered || 0, 0),
 						date: new Date(dates[i]),
 					},
 					{
@@ -311,7 +309,7 @@ export function getChartData(data: any, props: getChartDataProps) {
 					key: 2,
 					type: "Active",
 					country: "World",
-					covidInfo: Math.max(cases - recovered, 0),
+					covidInfo: Math.max(cases - recovered || 0, 0),
 					date: new Date(dates[i]),
 				},
 				{
