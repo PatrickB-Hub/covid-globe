@@ -2,6 +2,8 @@
 
 Visualization of covid-19 infections and how it changed over time. You can filter for active cases, recovered and deaths. The information is rendered on a interactive 3D globe and plotted on a line graph.
 
+![Covid-Globe](https://patrickbecker.me/static/media/covid-history.79c0ae6e.jpg)
+
 ## Features
 
 - Renders covid data on a interactive 3D globe
