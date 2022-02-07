@@ -165,9 +165,10 @@ export class UIManager {
       // show county card
       this.countryCardUI.countryCard.classList.toggle("visible");
 
-      const countryFlagSrc = getCountryFlag(this.data, this.intersectedIso);
-      if (countryFlagSrc)
-        this.countryCardUI.countryCardFlag.setAttribute("src", countryFlagSrc);
+      this.countryCardUI.countryCardFlag.setAttribute(
+        "src",
+        `https://flagcdn.com/${this.intersectedIso.toLocaleLowerCase()}.svg`
+      );
 
       const countryName = getCountryName(this.data, this.intersectedIso);
       if (countryName)
