@@ -6,7 +6,8 @@ import {
   MeshBasicMaterial,
   InstancedMesh,
   MathUtils,
-  Intersection
+  Intersection,
+  DataTexture,
 } from "three";
 import { TWEEN } from "three/examples/jsm/libs/tween.module.min.js";
 
@@ -16,7 +17,7 @@ import {
   getLatestDate,
   getDateRange,
   getDateIndex,
-  getCovidTypeCount
+  getCovidTypeCount,
 } from "../utils/utils";
 
 import { EventBus } from "../events/EventBus.js";
@@ -28,7 +29,7 @@ import {
   showCard,
   timeseriesAction,
   timeseriesInputChange,
-  timeseriesSliderChange
+  timeseriesSliderChange,
 } from "../events/constants";
 
 import { data } from "../types";
@@ -39,14 +40,14 @@ interface helpersProps {
   positionHelper: Object3D;
   originHelper: Object3D;
   colorHelper: Color;
-};
+}
 
 interface transformBoxProps {
-  lng: number,
-  lat: number,
-  hue: number,
-  zScale: number,
-  instanceId: number
+  lng: number;
+  lat: number;
+  hue: number;
+  zScale: number;
+  instanceId: number;
 }
 
 export class Boxes {
@@ -57,6 +58,7 @@ export class Boxes {
   private boxes: { [key: string]: number };
   private covidDataType: number;
   private currentDate: string;
+  private lastDate: string;
   private targetDate: string;
   private helpers: helpersProps;
 
@@ -78,13 +80,13 @@ export class Boxes {
     this.covidDataType = 0;
     this.currentDate = "";
     this.targetDate = getLatestDate(this.data);
+    this.lastDate = this.targetDate;
     this.isos = [];
     this.numTweensRunning = 0;
 
     this.helpers = this.createHelpers();
     this.createBoxes();
   }
-
 
   // these helpers make it easier to position the boxes
   private createHelpers() {
@@ -112,13 +114,11 @@ export class Boxes {
   }
 
   private createBoxes() {
-    console.time("render time");
-
     const hue = 0.6;
     const zScale = 0.01;
     const boxInfos = getSceneData(this.data, {
       targetDateIndex: getDateIndex(this.data, this.targetDate),
-      covidDataType: this.covidDataType
+      covidDataType: this.covidDataType,
     });
     boxInfos.forEach((info, instanceId) => {
       const { lng, lat, iso } = info;
@@ -132,16 +132,15 @@ export class Boxes {
     this.scene.add(this.mesh);
     this.eventBus.post(renderCall);
 
+    this.eventBus.subscribe(covidTypeChange, (type: number) => {
+      this.covidDataType = type;
+      this.updateBoxes();
+    });
     this.eventBus.subscribe(
-      covidTypeChange,
-      (type: number) => {
-        this.covidDataType = type;
-        this.updateBoxes();
-      });
-    this.eventBus.subscribe(timeseriesAction, this.handleTimeseriesAction.bind(this));
+      timeseriesAction,
+      this.handleTimeseriesAction.bind(this)
+    );
     this.eventBus.subscribe(earthIntersection, this.highlightBoxes.bind(this));
-
-    console.timeEnd("render time");
 
     setTimeout(() => this.updateBoxes(), 2000);
   }
@@ -172,10 +171,11 @@ export class Boxes {
   updateBoxes(duration = 1000) {
     this.currentDate = this.targetDate;
 
+    const dateRange = getDateRange(this.data);
     const prevValues = { ...this.boxes };
     const boxInfos = getSceneData(this.data, {
       targetDateIndex: getDateIndex(this.data, this.targetDate),
-      covidDataType: this.covidDataType
+      covidDataType: this.covidDataType,
     });
     const targets: { [key: string]: number } = {};
     boxInfos.forEach((info, idx) => {
@@ -185,30 +185,67 @@ export class Boxes {
 
     // animate to the new set of boxes
     this.numTweensRunning += 1;
+    const updateCalls = duration / 40;
+    const dates = Object.keys(dateRange);
+    const datesDiff = dateRange[this.lastDate] - dateRange[this.targetDate];
+    const x = Math.ceil(
+      (-1 * (dateRange[this.lastDate] - dateRange[this.targetDate])) /
+        updateCalls
+    );
+    let indx = dateRange[this.lastDate];
+
     const tween = new TWEEN.Tween(this.boxes)
       .to(targets)
       .duration(duration)
       .onUpdate((obj: { [key: string]: number }) => {
         for (let instanceId = 0; instanceId < this.mesh.count; instanceId++) {
-
-          if (obj[`${instanceId}zScale`] !== prevValues[`${instanceId}zScale`]) {
-
+          if (
+            obj[`${instanceId}zScale`] !== prevValues[`${instanceId}zScale`]
+          ) {
             this.transformBox({
               lng: boxInfos[instanceId].lng,
               lat: boxInfos[instanceId].lat,
               hue: obj[`${instanceId}hue`],
               zScale: obj[`${instanceId}zScale`],
-              instanceId
+              instanceId,
             });
           }
+        }
+        if (
+          indx <= dates.length &&
+          (datesDiff <= 0
+            ? indx <= dateRange[this.targetDate]
+            : indx > dateRange[this.targetDate])
+        ) {
+          this.eventBus.post(timeseriesSliderChange, indx.toString());
+          this.eventBus.post(timeseriesInputChange, dates[indx]);
+
+          indx += x;
         }
       })
       .onComplete(() => {
         this.numTweensRunning -= 1;
+        if (duration === 200) {
+          this.targetDate = dates[dates.length - 1];
+          this.updateBoxes(5000);
+        }
+        this.eventBus.post(
+          timeseriesSliderChange,
+          dateRange[this.targetDate].toString()
+        );
+        this.eventBus.post(timeseriesInputChange, this.targetDate);
       })
       .start();
 
-    this.eventBus.post(covidTypeCountChange, getCovidTypeCount(this.data, this.covidDataType, getDateRange(this.data), this.targetDate));
+    this.eventBus.post(
+      covidTypeCountChange,
+      getCovidTypeCount(
+        this.data,
+        this.covidDataType,
+        getDateRange(this.data),
+        this.targetDate
+      )
+    );
     this.eventBus.post(renderCall);
   }
 
@@ -216,25 +253,39 @@ export class Boxes {
     const dateRange = getDateRange(this.data);
     this.targetDate = target;
 
-    if ((event.target.type === "range" &&
-      this.currentDate !== Object.keys(dateRange)[event.target.valueAsNumber]) ||
-      (event.target.type === "date" && this.currentDate !== event.target.value))
+    if (
+      (event.target.type === "range" &&
+        this.currentDate !==
+          Object.keys(dateRange)[event.target.valueAsNumber]) ||
+      (event.target.type === "date" && this.currentDate !== event.target.value)
+    ) {
       this.updateBoxes();
-    else
-      this.updateBoxes(5000);
-
-    this.eventBus.post(timeseriesSliderChange, dateRange[this.targetDate].toString());
-    this.eventBus.post(timeseriesInputChange, this.targetDate);
+      this.lastDate =
+        event.target.type === "range"
+          ? Object.keys(dateRange)[event.target.valueAsNumber]
+          : event.target.value;
+    } else {
+      if (dateRange[this.lastDate] >= dateRange[target]) {
+        this.targetDate = Object.keys(dateRange)[1];
+        this.updateBoxes(200);
+        this.lastDate = this.targetDate;
+      } else {
+        this.updateBoxes(5000);
+        this.lastDate = this.targetDate;
+      }
+    }
   }
 
-  private highlightBoxes(intersects: Intersection[], mouse: { x: number, y: number }) {
-
+  private highlightBoxes(
+    intersects: Intersection[],
+    mouse: { x: number; y: number }
+  ) {
     const countryCard = <HTMLElement>document.getElementById("card");
     // hide country card
     countryCard.classList.remove("visible");
 
     const canvas = document.body.querySelector("canvas");
-    canvas.onclick = () => { };
+    canvas.onclick = () => {};
 
     // checks if instancedMesh is intersected and visible to the user
     if (intersects.length > 0 && intersects[0].instanceId) {
@@ -247,12 +298,12 @@ export class Boxes {
           if (iso.split("-")[0] === intersectedIso) {
             this.mesh.setColorAt(
               idx,
-              this.helpers.colorHelper.setHSL(this.boxes[`${idx}hue`], 1, .95)
+              this.helpers.colorHelper.setHSL(this.boxes[`${idx}hue`], 1, 0.95)
             );
           } else {
             this.mesh.setColorAt(
               idx,
-              this.helpers.colorHelper.setHSL(this.boxes[`${idx}hue`], 1, .5)
+              this.helpers.colorHelper.setHSL(this.boxes[`${idx}hue`], 1, 0.5)
             );
           }
         });
@@ -262,7 +313,7 @@ export class Boxes {
         canvas.style.cursor = "pointer";
         canvas.onclick = () => {
           this.eventBus.post(showCard, intersects, mouse);
-        }
+        };
       }
     } else {
       document.body.querySelector("canvas").style.cursor = "move";
