@@ -24,7 +24,6 @@ Visualization of covid-19 infections and how it changed over time. You can filte
 ## Installing
 
 After you have forked the project and downloaded the code, install the necessary dependencies using [npm](https://docs.npmjs.com/about-npm/) or [yarn](https://yarnpkg.com/getting-started).
-Don't forget to install the dependencies in the client folder aswell.
 
 To install the packages through npm, run the command `npm install`
 
